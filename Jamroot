@@ -1,5 +1,7 @@
 import testing ;
+import feature ;
 import regex ;
+import print ;
 
 local std-cstd-values = c89 c90 c94 c9x c99 c11 ;
 local std-cxxstd-values = c++98 c++03 c++0x c++11 c++1y c++14 c++1z ;
@@ -9,6 +11,9 @@ for local s in $(std-cstd-values)
   local sname = $(s) ;
   local name = main_c_$(sname).c ;
 
+  explicit $(name) ;
+  make $(name) : : @stdc-generate-main ;
+
   run $(name) : : : <cstd>$(s) ;
 }
 
@@ -17,5 +22,170 @@ for local s in $(std-cxxstd-values)
   local sname = [ regex.replace $(s) \\+ x ] ;
   local name = main_cxx_$(sname).cpp ;
 
+  explicit $(name) ;
+  make $(name) : : @stdcxx-generate-main ;
+
   run $(name) : : : <cxxstd>$(s) ;
+}
+
+rule stdc-generate-main ( target : sources * : properties * )
+{
+  local std = [ feature.get-values <cstd> : $(properties) ] ;
+  local body = [ stdc-version-body $(std) ] ;
+
+  if $(body)
+  {
+    print.output $(target) ;
+
+    print.text $(body) : true ;
+  }
+}
+
+rule stdc-version-body ( std )
+{
+  local body = ;
+
+  local template =
+"#include <stdio.h>
+
+int
+main ()
+{
+#if defined (__STDC__)
+   printf (\"__STDC__ = %d\\n\",__STDC__);
+#endif
+#if defined (__STDC_VERSION__)
+   printf (\"__STDC_VERSION__ = %ldL\\n\",__STDC_VERSION__);
+#endif
+
+#if defined (__STDC__) && ____STDC_VERSION_CHECK
+   return 0;
+#else
+   return 1;
+#endif
+}
+"
+    ;
+
+  local check = [ stdc-stdc-version-check $(std) ] ;
+
+  if $(check)
+  {
+    body = [ regex.replace "$(template)" ____STDC_VERSION_CHECK $(check) ] ;
+  }
+
+  return $(body) ;
+}
+
+rule stdc-stdc-version-check ( std )
+{
+  local check = ;
+
+  local value = [ stdc-stdc-version-value $(std) ] ;
+
+  if $(value) = "-1L"
+  {
+    check = "! defined (__STDC_VERSION__)" ;
+  }
+  else if $(value)
+  {
+    check = "(__STDC_VERSION__ == $(value))" ;
+  }
+
+  return $(check) ;
+}
+
+rule stdc-stdc-version-value ( std )
+{
+  local value = ;
+
+  switch $(std)
+  {
+    case c89 : value = -1L ;
+    case c90 : value = -1L ;
+    case c94 : value = 199409L ;
+    case c9x : value = 199901L ;
+    case c99 : value = 199901L ;
+    case c11 : value = 201112L ;
+  }
+
+  return $(value) ;
+}
+
+rule stdcxx-generate-main ( target : sources * : properties * )
+{
+  local std = [ feature.get-values <cxxstd> : $(properties) ] ;
+  local body = [ stdcxx-version-body $(std) ] ;
+
+  if $(body)
+  {
+    print.output $(target) ;
+
+    print.text $(body) : true ;
+  }
+}
+
+rule stdcxx-version-body ( std )
+{
+  local body = ;
+
+  local template =
+"#include <iostream>
+
+int
+main ()
+{
+#if defined (__cplusplus)
+   std::cout << \"__cplusplus = \" << __cplusplus << \"L\\n\";
+#endif
+
+#if defined (__cplusplus) && ____cplusplus_check
+   return 0;
+#else
+   return 1;
+#endif
+}
+"
+    ;
+
+  local check = [ stdcxx-cplusplus-check $(std) ] ;
+
+  if $(check)
+  {
+    body = [ regex.replace "$(template)" ____cplusplus_check $(check) ] ;
+  }
+
+  return $(body) ;
+}
+
+rule stdcxx-cplusplus-check ( std )
+{
+  local check = ;
+
+  local value = [ stdcxx-cplusplus-value $(std) ] ;
+
+  if $(value)
+  {
+    check = "(__cplusplus == $(value))" ;
+  }
+
+  return $(check) ;
+}
+
+rule stdcxx-cplusplus-value ( std )
+{
+  local value = ;
+
+  switch $(std)
+  {
+    case c++98 : value = 199711L ;
+    case c++03 : value = 199711L ;
+    case c++0x : value = 201103L ;
+    case c++11 : value = 201103L ;
+    case c++1y : value = 201402L ;
+    case c++14 : value = 201402L ;
+    case c++1z : value = 201406L ;
+  }
+
+  return $(value) ;
 }
