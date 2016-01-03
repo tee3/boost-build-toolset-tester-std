@@ -8,7 +8,9 @@ local std-cxxstd-values = c++98 c++03 c++0x c++11 c++1y c++14 c++1z ;
 
 local std-cstd-no-stdc-version = c89 c90 gnu89 gnu90 ;
 
-for local s in $(std-cstd-values)
+local std-prefixes = c gnu ;
+
+for local s in [ feature.values <cstd> ]
 {
   local sname = $(s) ;
   local name = main_c_$(sname).c ;
@@ -19,7 +21,7 @@ for local s in $(std-cstd-values)
   run $(name) : : : <cstd>$(s) ;
 }
 
-for local s in $(std-cxxstd-values)
+for local s in [ feature.values <cxxstd> ]
 {
   local sname = [ regex.replace $(s) \\+ x ] ;
   local name = main_cxx_$(sname).cpp ;
@@ -171,10 +173,10 @@ rule stdc-stdc-version-value ( std )
 
   switch $(std)
   {
-    case c94 : value = 199409L ;
-    case c9x : value = 199901L ;
-    case c99 : value = 199901L ;
-    case c11 : value = 201112L ;
+    case $(std-prefixes)94 : value = 199409L ;
+    case $(std-prefixes)9x : value = 199901L ;
+    case $(std-prefixes)99 : value = 199901L ;
+    case $(std-prefixes)11 : value = 201112L ;
   }
 
   return $(value) ;
@@ -279,13 +281,13 @@ rule stdcxx-cplusplus-value ( std )
 
   switch $(std)
   {
-    case c++98 : value = 199711L ;
-    case c++03 : value = 199711L ;
-    case c++0x : value = 201103L ;
-    case c++11 : value = 201103L ;
-    case c++1y : value = 201402L ;
-    case c++14 : value = 201402L ;
-    case c++1z : value = 201406L ;
+    case $(std-prefixes)++98 : value = 199711L ;
+    case $(std-prefixes)++03 : value = 199711L ;
+    case $(std-prefixes)++0x : value = 201103L ;
+    case $(std-prefixes)++11 : value = 201103L ;
+    case $(std-prefixes)++1y : value = 201402L ;
+    case $(std-prefixes)++14 : value = 201402L ;
+    case $(std-prefixes)++1z : value = 201406L ;
   }
 
   return $(value) ;
