@@ -1,0 +1,21 @@
+import testing ;
+import regex ;
+
+local std-cstd-values = c89 c90 c94 c9x c99 c11 ;
+local std-cxxstd-values = c++98 c++03 c++0x c++11 c++1y c++14 c++1z ;
+
+for local s in $(std-cstd-values)
+{
+  local sname = $(s) ;
+  local name = main_c_$(sname).c ;
+
+  run $(name) : : : <cstd>$(s) ;
+}
+
+for local s in $(std-cxxstd-values)
+{
+  local sname = [ regex.replace $(s) \\+ x ] ;
+  local name = main_cxx_$(sname).cpp ;
+
+  run $(name) : : : <cxxstd>$(s) ;
+}
