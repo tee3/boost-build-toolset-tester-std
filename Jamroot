@@ -119,6 +119,9 @@ rule stdc-version-prints ( std )
 #if defined (__STDC_VERSION__)
    printf (\"__STDC_VERSION__ = %ldL\\n\",__STDC_VERSION__);
 #endif
+#if defined (__STDC_HOSTED__)
+   printf (\"__STDC_HOSTED__ = %d\\n\",__STDC_HOSTED__);
+#endif
 "
     ;
 
