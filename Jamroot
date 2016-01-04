@@ -13,6 +13,10 @@ local std-prefixes = c gnu ;
 for local s in [ feature.values <cstd> ]
 {
   local sname = $(s) ;
+  if $(sname) = native
+  {
+    s = ; # leave unspecified in this case
+  }
   local name = main_cstd_$(sname).c ;
 
   explicit $(name) ;
@@ -24,6 +28,10 @@ for local s in [ feature.values <cstd> ]
 for local s in [ feature.values <cxxstd> ]
 {
   local sname = [ regex.replace $(s) \\+ x ] ;
+  if $(sname) = native
+  {
+    s = ; # leave unspecified in this case
+  }
   local name = main_cxxstd_$(sname).cpp ;
 
   explicit $(name) ;
@@ -35,10 +43,18 @@ for local s in [ feature.values <cxxstd> ]
 for local s in [ feature.values <objcstd> ]
 {
   local sname = $(s) ;
+  if $(sname) = native
+  {
+    s = ; # leave unspecified in this case
+  }
 
   for local t in [ feature.values <cstd> ]
   {
     local tname = $(t) ;
+    if $(tname) = native
+    {
+      t = ; # leave unspecified in this case
+    }
     local name = main_objcstd_$(sname)_cstd_$(tname).m ;
 
     explicit $(name) ;
@@ -51,11 +67,18 @@ for local s in [ feature.values <objcstd> ]
 for local s in [ feature.values <objcxxstd> ]
 {
   local sname = $(s) ;
+  if $(sname) = native
+  {
+    s = ; # leave unspecified in this case
+  }
 
   for local t in [ feature.values <cxxstd> ]
   {
     local tname = $(t) ;
-
+    if $(tname) = native
+    {
+      t = ; # leave unspecified in this case
+    }
     local name = main_objcxxstd_$(sname)_cxxstd_$(tname).mm ;
 
     explicit $(name) ;
