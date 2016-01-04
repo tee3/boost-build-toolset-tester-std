@@ -148,6 +148,19 @@ rule cstd-stdc-version-prints ( std )
 "
     ;
 
+  prints +=
+"#if defined (__GNUC__)
+   printf (\"__GNUC__ = %d\\n\",__GNUC__);
+#endif
+#if defined (__GNUC_MINOR__)
+   printf (\"__GNUC_MINOR__ = %d\\n\",__GNUC_MINOR__);
+#endif
+#if defined (__GNUC_PATCHLEVEL__)
+   printf (\"__GNUC_PATCHLEVEL__ = %d\\n\",__GNUC_PATCHLEVEL__);
+#endif
+"
+    ;
+
   return $(prints) ;
 }
 
@@ -263,6 +276,13 @@ rule cxxstd-version-prints ( std )
   prints +=
 "#if defined (__cplusplus)
    printf (\"__cplusplus = %ldL\\n\",__cplusplus);
+#endif
+"
+    ;
+
+  prints +=
+"#if defined (__GNUG__)
+   printf (\"__GNUG__ = %d\\n\",__GNUG__);
 #endif
 "
     ;
