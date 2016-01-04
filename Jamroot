@@ -214,7 +214,7 @@ rule cxxstd-version-body ( std )
   if $(prints-and-checks)
   {
     body +=
-"#include <iostream>
+"#include <stdio.h>
 
 int
 main ()
@@ -239,7 +239,7 @@ rule cxxstd-version-prints ( std )
 
   prints +=
 "#if defined (__cplusplus)
-   std::cout << \"__cplusplus = \" << __cplusplus << \"L\\n\";
+   printf (\"__cplusplus = %ldL\\n\",__cplusplus);
 #endif
 "
     ;
