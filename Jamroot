@@ -16,7 +16,7 @@ for local s in [ feature.values <cstd> ]
   local name = main_cstd_$(sname).c ;
 
   explicit $(name) ;
-  make $(name) : : @stdc-generate-main ;
+  make $(name) : : @cstd-generate-main ;
 
   run $(name) : : : <cstd>$(s) ;
 }
@@ -27,7 +27,7 @@ for local s in [ feature.values <cxxstd> ]
   local name = main_cxxstd_$(sname).cpp ;
 
   explicit $(name) ;
-  make $(name) : : @stdcxx-generate-main ;
+  make $(name) : : @cxxstd-generate-main ;
 
   run $(name) : : : <cxxstd>$(s) ;
 }
@@ -42,7 +42,7 @@ for local s in [ feature.values <objcstd> ]
     local name = main_objcstd_$(sname)_cstd_$(tname).m ;
 
     explicit $(name) ;
-    make $(name) : : @objc-generate-main ;
+    make $(name) : : @objcstd-generate-main ;
 
     run $(name) : : : <objcstd>$(s) <cstd>$(t) ;
   }
@@ -59,16 +59,16 @@ for local s in [ feature.values <objcxxstd> ]
     local name = main_objcxxstd_$(sname)_cxxstd_$(tname).mm ;
 
     explicit $(name) ;
-    make $(name) : : @objcxx-generate-main ;
+    make $(name) : : @objcxxstd-generate-main ;
 
     run $(name) : : : <objcxxstd>$(s) <cxxstd>$(t) ;
   }
 }
 
-rule stdc-generate-main ( target : sources * : properties * )
+rule cstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <cstd> : $(properties) ] ;
-  local body = [ stdc-version-body $(std) ] ;
+  local body = [ cstd-version-body $(std) ] ;
 
   if $(body)
   {
@@ -78,12 +78,12 @@ rule stdc-generate-main ( target : sources * : properties * )
   }
 }
 
-rule stdc-version-body ( std )
+rule cstd-version-body ( std )
 {
   local body = ;
 
-  local prints = [ stdc-version-prints $(std) ] ;
-  local checks = [ stdc-version-checks $(std) ] ;
+  local prints = [ cstd-stdc-version-prints $(std) ] ;
+  local checks = [ cstd-stdc-version-checks $(std) ] ;
   local prints-and-checks = $(prints) $(checks) ;
 
   if $(prints-and-checks)
@@ -108,7 +108,7 @@ main ()
   return $(body) ;
 }
 
-rule stdc-version-prints ( std )
+rule cstd-stdc-version-prints ( std )
 {
   local prints = ;
 
@@ -128,7 +128,7 @@ rule stdc-version-prints ( std )
   return $(prints) ;
 }
 
-rule stdc-version-checks ( std )
+rule cstd-stdc-version-checks ( std )
 {
   local checks = ;
 
@@ -150,17 +150,17 @@ rule stdc-version-checks ( std )
   }
   else if $(std) in $(std-cstd-values)
   {
-    checks += [ stdc-modern-version-check $(std) ] ;
+    checks += [ cstd-modern-stdc-version-value-check $(std) ] ;
   }
 
   return $(checks) ;
 }
 
-rule stdc-modern-version-check ( std )
+rule cstd-modern-stdc-version-value-check ( std )
 {
   local check = ;
 
-  local value = [ stdc-stdc-version-value $(std) ] ;
+  local value = [ cstd-stdc-version-value $(std) ] ;
 
   if $(value)
   {
@@ -175,35 +175,7 @@ rule stdc-modern-version-check ( std )
   return $(check) ;
 }
 
-rule stdc-stdc-version-value ( std )
-{
-  local value = ;
-
-  switch $(std)
-  {
-    case c94 : value = 199409L ;
-    case c9x : value = 199901L ;
-    case c99 : value = 199901L ;
-    case c11 : value = 201112L ;
-  }
-
-  return $(value) ;
-}
-
-rule stdcxx-generate-main ( target : sources * : properties * )
-{
-  local std = [ feature.get-values <cxxstd> : $(properties) ] ;
-  local body = [ stdcxx-version-body $(std) ] ;
-
-  if $(body)
-  {
-    print.output $(target) ;
-
-    print.text $(body) : true ;
-  }
-}
-
-rule stdc-stdc-version-value ( std )
+rule cstd-stdc-version-value ( std )
 {
   local value = ;
 
@@ -218,10 +190,10 @@ rule stdc-stdc-version-value ( std )
   return $(value) ;
 }
 
-rule stdcxx-generate-main ( target : sources * : properties * )
+rule cxxstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <cxxstd> : $(properties) ] ;
-  local body = [ stdcxx-version-body $(std) ] ;
+  local body = [ cxxstd-version-body $(std) ] ;
 
   if $(body)
   {
@@ -231,12 +203,12 @@ rule stdcxx-generate-main ( target : sources * : properties * )
   }
 }
 
-rule stdcxx-version-body ( std )
+rule cxxstd-version-body ( std )
 {
   local body = ;
 
-  local prints = [ stdcxx-version-prints $(std) ] ;
-  local checks = [ stdcxx-cplusplus-checks $(std) ] ;
+  local prints = [ cxxstd-version-prints $(std) ] ;
+  local checks = [ cxxstd-cplusplus-checks $(std) ] ;
   local prints-and-checks = $(prints) $(checks) ;
 
   if $(prints-and-checks)
@@ -261,7 +233,7 @@ main ()
   return $(body) ;
 }
 
-rule stdcxx-version-prints ( std )
+rule cxxstd-version-prints ( std )
 {
   local prints = ;
 
@@ -275,7 +247,7 @@ rule stdcxx-version-prints ( std )
   return $(prints) ;
 }
 
-rule stdcxx-cplusplus-checks ( std )
+rule cxxstd-cplusplus-checks ( std )
 {
   local checks = ;
 
@@ -286,16 +258,16 @@ rule stdcxx-cplusplus-checks ( std )
 "
     ;
 
-  checks += [ stdcxx-cplusplus-check $(std) ] ;
+  checks += [ cxxstd-cplusplus-check $(std) ] ;
 
   return $(checks) ;
 }
 
-rule stdcxx-cplusplus-check ( std )
+rule cxxstd-cplusplus-check ( std )
 {
   local check = ;
 
-  local value = [ stdcxx-cplusplus-value $(std) ] ;
+  local value = [ cxxstd-cplusplus-value $(std) ] ;
 
   if $(value)
   {
@@ -311,7 +283,7 @@ rule stdcxx-cplusplus-check ( std )
   return $(check) ;
 }
 
-rule stdcxx-cplusplus-value ( std )
+rule cxxstd-cplusplus-value ( std )
 {
   local value = ;
 
@@ -331,10 +303,10 @@ rule stdcxx-cplusplus-value ( std )
 
 # @todo this currently just generates a C file with an Objective-C
 # extension.
-rule objc-generate-main ( target : sources * : properties * )
+rule objcstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <objcstd> : $(properties) ] ;
-  local body = [ stdc-version-body $(std) ] ;
+  local body = [ cstd-version-body $(std) ] ;
 
   if $(body)
   {
@@ -346,10 +318,10 @@ rule objc-generate-main ( target : sources * : properties * )
 
 # @todo this currently just generates a C file with an Objective-C
 # extension.
-rule objcxx-generate-main ( target : sources * : properties * )
+rule objcxxstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <objcxxstd> : $(properties) ] ;
-  local body = [ stdcxx-version-body $(std) ] ;
+  local body = [ cxxstd-version-body $(std) ] ;
 
   if $(body)
   {
