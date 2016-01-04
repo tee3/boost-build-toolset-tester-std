@@ -35,23 +35,34 @@ for local s in [ feature.values <cxxstd> ]
 for local s in [ feature.values <objcstd> ]
 {
   local sname = $(s) ;
-  local name = main_objcstd_$(sname).m ;
 
-  explicit $(name) ;
-  make $(name) : : @objc-generate-main ;
+  for local t in [ feature.values <cstd> ]
+  {
+    local tname = $(t) ;
+    local name = main_objcstd_$(sname)_cstd_$(tname).m ;
 
-  run $(name) : : : <objcstd>$(s) ;
+    explicit $(name) ;
+    make $(name) : : @objc-generate-main ;
+
+    run $(name) : : : <objcstd>$(s) <cstd>$(t) ;
+  }
 }
 
 for local s in [ feature.values <objcxxstd> ]
 {
   local sname = $(s) ;
-  local name = main_objcxxstd_$(sname).mm ;
 
-  explicit $(name) ;
-  make $(name) : : @objcxx-generate-main ;
+  for local t in [ feature.values <cxxstd> ]
+  {
+    local tname = $(t) ;
 
-  run $(name) : : : <objcxxstd>$(s) ;
+    local name = main_objcxxstd_$(sname)_cxxstd_$(tname).mm ;
+
+    explicit $(name) ;
+    make $(name) : : @objcxx-generate-main ;
+
+    run $(name) : : : <objcxxstd>$(s) <cxxstd>$(t) ;
+  }
 }
 
 rule stdc-generate-main ( target : sources * : properties * )
