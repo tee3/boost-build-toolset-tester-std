@@ -16,12 +16,19 @@ compiler.
 
    $ b2
 
+To see a printout of the standard predefined preprocessor macros, add
+``--verbose-test`` to the command line:
+
+.. code:: sh
+
+   $ b2 --verbose-test
+
 To build against the ``gcc`` and ``clang`` toolsets, run the following
 command.
 
 .. code:: sh
 
-   $ b2 \
+   $ b2 --verbose-test \
        toolset=gcc
        toolset=clang
 
