@@ -13,7 +13,7 @@ local std-prefixes = c gnu ;
 for local s in [ feature.values <cstd> ]
 {
   local sname = $(s) ;
-  local name = main_c_$(sname).c ;
+  local name = main_cstd_$(sname).c ;
 
   explicit $(name) ;
   make $(name) : : @stdc-generate-main ;
@@ -24,7 +24,7 @@ for local s in [ feature.values <cstd> ]
 for local s in [ feature.values <cxxstd> ]
 {
   local sname = [ regex.replace $(s) \\+ x ] ;
-  local name = main_cxx_$(sname).cpp ;
+  local name = main_cxxstd_$(sname).cpp ;
 
   explicit $(name) ;
   make $(name) : : @stdcxx-generate-main ;
@@ -35,7 +35,7 @@ for local s in [ feature.values <cxxstd> ]
 for local s in [ feature.values <objcstd> ]
 {
   local sname = $(s) ;
-  local name = main_objc_$(sname).m ;
+  local name = main_objcstd_$(sname).m ;
 
   explicit $(name) ;
   make $(name) : : @objc-generate-main ;
@@ -46,7 +46,7 @@ for local s in [ feature.values <objcstd> ]
 for local s in [ feature.values <objcxxstd> ]
 {
   local sname = $(s) ;
-  local name = main_objcxx_$(sname).mm ;
+  local name = main_objcxxstd_$(sname).mm ;
 
   explicit $(name) ;
   make $(name) : : @objcxx-generate-main ;
