@@ -1,0 +1,18 @@
+sudo: false
+os:
+  - linux
+  - osx
+env:
+  - TOOLSET=gcc
+  - TOOLSET=darwin
+  - TOOLSET=clang
+matrix:
+  exclude:
+    - os: linux
+      env: TOOLSET=darwin
+    - os: osx
+      env: TOOLSET=gcc
+install:
+  - ./.travis-boost-build-stage.sh
+script:
+  - BOOST_BUILD_PATH=/tmp/build /tmp/build/b2 toolset=${TOOLSET}
