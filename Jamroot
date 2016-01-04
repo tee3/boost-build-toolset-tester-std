@@ -301,12 +301,10 @@ rule cxxstd-cplusplus-value ( std )
   return $(value) ;
 }
 
-# @todo this currently just generates a C file with an Objective-C
-# extension.
 rule objcstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <objcstd> : $(properties) ] ;
-  local body = [ cstd-version-body $(std) ] ;
+  local body = [ objcstd-version-body $(std) ] ;
 
   if $(body)
   {
@@ -316,12 +314,82 @@ rule objcstd-generate-main ( target : sources * : properties * )
   }
 }
 
-# @todo this currently just generates a C file with an Objective-C
-# extension.
+rule objcstd-version-body ( std )
+{
+  local body = ;
+
+  local prints ;
+  local checks ;
+
+  prints += [ cstd-stdc-version-prints $(std) ] ;
+  prints += [ objcstd-objc-prints $(std) ] ;
+
+  checks += [ cstd-stdc-version-checks $(std) ] ;
+  checks += [ objcstd-objc-checks $(std) ] ;
+
+  local prints-and-checks = $(prints) $(checks) ;
+
+  if $(prints-and-checks)
+  {
+    body +=
+"#include <stdio.h>
+
+int
+main ()
+{
+"
+      ;
+    body += $(prints-and-checks) ;
+    body +=
+"
+  return 0;
+}
+"
+      ;
+  }
+
+  return $(body) ;
+}
+
+rule objcstd-objc-prints ( std )
+{
+  local prints = ;
+
+  prints +=
+"#if defined (__OBJC__)
+   printf (\"__OBJC__ = %d\\n\",__OBJC__);
+#endif
+"
+    ;
+
+  return $(prints) ;
+}
+
+rule objcstd-objc-checks ( std )
+{
+  local checks = ;
+
+  checks +=
+"#if ! defined (__OBJC__)
+   return 1;
+#endif
+"
+    ;
+
+    check +=
+"#if (__OBJC__ != 1))
+  return 1;
+#endif
+"
+      ;
+
+  return $(checks) ;
+}
+
 rule objcxxstd-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <objcxxstd> : $(properties) ] ;
-  local body = [ cxxstd-version-body $(std) ] ;
+  local body = [ objcxxstd-version-body $(std) ] ;
 
   if $(body)
   {
@@ -329,4 +397,41 @@ rule objcxxstd-generate-main ( target : sources * : properties * )
 
     print.text $(body) : true ;
   }
+}
+
+rule objcxxstd-version-body ( std )
+{
+  local body = ;
+
+  local prints ;
+  local checks ;
+
+  prints += [ cxxstd-version-prints $(std) ] ;
+  prints += [ objcstd-objc-prints $(std) ] ;
+
+  prints += [ cxxstd-cplusplus-checks $(std) ] ;
+  checks += [ objcstd-objc-checks $(std) ] ;
+
+  local prints-and-checks = $(prints) $(checks) ;
+
+  if $(prints-and-checks)
+  {
+    body +=
+"#include <stdio.h>
+
+int
+main ()
+{
+"
+      ;
+    body += $(prints-and-checks) ;
+    body +=
+"
+  return 0;
+}
+"
+      ;
+  }
+
+  return $(body) ;
 }
