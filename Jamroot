@@ -32,6 +32,28 @@ for local s in [ feature.values <cxxstd> ]
   run $(name) : : : <cxxstd>$(s) ;
 }
 
+for local s in [ feature.values <objcstd> ]
+{
+  local sname = $(s) ;
+  local name = main_objc_$(sname).m ;
+
+  explicit $(name) ;
+  make $(name) : : @objc-generate-main ;
+
+  run $(name) : : : <objcstd>$(s) ;
+}
+
+for local s in [ feature.values <objcxxstd> ]
+{
+  local sname = $(s) ;
+  local name = main_objcxx_$(sname).mm ;
+
+  explicit $(name) ;
+  make $(name) : : @objcxx-generate-main ;
+
+  run $(name) : : : <objcxxstd>$(s) ;
+}
+
 rule stdc-generate-main ( target : sources * : properties * )
 {
   local std = [ feature.get-values <cstd> : $(properties) ] ;
@@ -291,4 +313,34 @@ rule stdcxx-cplusplus-value ( std )
   }
 
   return $(value) ;
+}
+
+# @todo this currently just generates a C file with an Objective-C
+# extension.
+rule objc-generate-main ( target : sources * : properties * )
+{
+  local std = [ feature.get-values <objcstd> : $(properties) ] ;
+  local body = [ stdc-version-body $(std) ] ;
+
+  if $(body)
+  {
+    print.output $(target) ;
+
+    print.text $(body) : true ;
+  }
+}
+
+# @todo this currently just generates a C file with an Objective-C
+# extension.
+rule objcxx-generate-main ( target : sources * : properties * )
+{
+  local std = [ feature.get-values <objcxxstd> : $(properties) ] ;
+  local body = [ stdcxx-version-body $(std) ] ;
+
+  if $(body)
+  {
+    print.output $(target) ;
+
+    print.text $(body) : true ;
+  }
 }
